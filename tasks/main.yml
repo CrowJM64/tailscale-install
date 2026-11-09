@@ -1,0 +1,33 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for tailscale-install
+# Tailscale Configuration
+- name: Download Tailscale Install Script.
+  ansible.builtin.get_url:
+    url: https://tailscale.com/install.sh
+    dest: /root/tailscale.sh
+    mode: '0500'
+  when:
+    - headscale_client == true
+    - headscale_server_started is succeeded
+
+- name: Check if Tailscale is installed
+  ansible.builtin.systemd:
+    name: "tailscale.service"
+  register: tailscale_status
+  when:
+    - headscale_client == true
+    - headscale_server_started is succeeded
+
+- name: Install Tailscale
+  ansible.builtin.shell: /root/tailscale.sh
+  when:
+    - headscale_client == true
+    - headscale_server_started is succeeded
+    - tailscale_status.status.ActiveState != 'active'
+
+- name: Join Client to Tailscale/Headscale
+  ansible.builtin.shell: 'tailscale up --login-server https://{{ headscale_serv_url }} --auth-key {{ pak_token }}'
+  when:
+    - headscale_client == true
+    - headscale_server_started is succeeded
