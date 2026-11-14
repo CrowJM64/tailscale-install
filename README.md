@@ -1,23 +1,36 @@
 # Ansible Role for installing Tailscale
 **Author/Maintainer:** Josh Murphy
 
-This role can either be paried with my headscale-install role, or used alone to join Ansible managed machines to a Headscale or Tailscale server.
 
-Requirements
+## Overview
+This role can either be paired with my headscale-install role, or used alone to join Ansible managed machines to a Headscale or Tailscale server.
+
+
+
+## Requirements
 ------------
 
 N/A
 
-Role Variables
+## Role Variables
 --------------
 
 
-Dependencies
-------------
+## Supported Platforms and Derivatives
+Below are the explicitly tested Distros.
+```yaml
+## Redhat
+Rocky - 10, 9
+Fedora - 44, 43
+Oracle - 10, 9
+AmazonLinux - 2023
 
+## Debian
+Debian - 13, 12
+Ubuntu - 2604, 2404
+```
 
-
-Example Playbook
+## Example Playbook
 ----------------
 
 ```yaml

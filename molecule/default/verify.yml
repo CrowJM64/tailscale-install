@@ -7,6 +7,6 @@
   tasks:
   - name: Check Tailscale service is active
     ansible.builtin.systemd:
-      name: tailscale
+      name: tailscaled
     register: tailscale_svc
     failed_when: tailscale_svc.status.ActiveState != "active"

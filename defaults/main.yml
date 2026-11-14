@@ -1,3 +1,5 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # defaults file for tailscale-install
+server_url: 'headscale.example.com'
+pak_token: hskey-auth-xxxxxxxxxxxx-xxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

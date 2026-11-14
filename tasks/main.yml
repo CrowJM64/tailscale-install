@@ -2,32 +2,47 @@
 ---
 # tasks file for tailscale-install
 # Tailscale Configuration
+- name: Gather the package facts
+  ansible.builtin.package_facts:
+    manager: auto
+    strategy: all
+
+- name: Check current Tailscale status
+  ansible.builtin.shell:
+    cmd: tailscale status
+  register: tailscale_status
+  failed_when: false
+  when:
+    - "'tailscale' in ansible_facts.packages"
+
+- name: Fail when Tailscale already logged in
+  ansible.builtin.fail:
+    msg: Tailscale already seems to be configured.
+  when:
+    - "'tailscale' in ansible_facts.packages"
+    - "'Logged out.' not in tailscale_status.stdout"
+
 - name: Download Tailscale Install Script.
   ansible.builtin.get_url:
     url: https://tailscale.com/install.sh
     dest: /root/tailscale.sh
     mode: '0500'
   when:
-    - headscale_client == true
-    - headscale_server_started is succeeded
-
-- name: Check if Tailscale is installed
-  ansible.builtin.systemd:
-    name: "tailscale.service"
-  register: tailscale_status
-  when:
-    - headscale_client == true
-    - headscale_server_started is succeeded
+    - "'tailscale' not in ansible_facts.packages"
+  register: tailscale_downloaded
 
 - name: Install Tailscale
-  ansible.builtin.shell: /root/tailscale.sh
+  ansible.builtin.shell:
+    cmd: /root/tailscale.sh
+  register: tailscale_install
   when:
-    - headscale_client == true
-    - headscale_server_started is succeeded
-    - tailscale_status.status.ActiveState != 'active'
+    - tailscale_downloaded.changed
+
+- name: Ensure TailscaleD is running.
+  ansible.builtin.service:
+    name: tailscaled
+    enabled: yes
+    state: started
 
 - name: Join Client to Tailscale/Headscale
-  ansible.builtin.shell: 'tailscale up --login-server https://{{ headscale_serv_url }} --auth-key {{ pak_token }}'
-  when:
-    - headscale_client == true
-    - headscale_server_started is succeeded
+  ansible.builtin.shell: 'tailscale up --login-server https://{{ server_url }} --auth-key {{ pak_token }}'
